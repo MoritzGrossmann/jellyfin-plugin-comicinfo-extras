@@ -12,6 +12,43 @@ Jellyfin only reads the title, series, number, summary, date, genre, publisher, 
 
 Locked fields (tags, age rating) in the metadata editor are respected.
 
+## Installing
+
+Requires Jellyfin **12.2** or newer (the plugin targets ABI `12.2.0.0`, .NET 10).
+
+### From the plugin repository (recommended)
+
+Installing through the repository gives you the catalog entry and automatic update notices.
+
+1. Open the Jellyfin dashboard and go to **Plugins → Repositories** (in some versions: *Catalog → gear icon*), then click **+**.
+2. Enter any name (e.g. `ComicInfo Extras`) and this URL, then save:
+
+   ```
+   https://raw.githubusercontent.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/master/manifest.json
+   ```
+
+   Want pre-releases too? Use `manifest-beta.json` instead of `manifest.json`.
+3. Open the **Catalog** tab, find **ComicInfo Extras** under *Metadata* and click **Install**.
+4. Restart Jellyfin. The plugin must show the status **Active** under *Dashboard → Plugins*.
+5. Check the plugin settings (rating system, SeriesGroup mode).
+6. For the book library: *Refresh metadata → Replace all metadata*.
+
+**Updating:** new releases appear in the catalog (and under *Dashboard → Plugins*) automatically. Install the update and restart Jellyfin.
+
+**Plugin not listed or "unsupported"?** The server version must be at least the plugin's `targetAbi` (12.2.0.0). Older servers do not show or load it.
+
+### Manual
+
+Download the ZIP from the [latest release](https://github.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/releases) and extract it into the server's plugin folder, in a subfolder named `ComicInfo Extras_<version>`:
+
+- Windows (installer/service): `C:\ProgramData\Jellyfin\Server\plugins\ComicInfo Extras_<version>\`
+- Linux package: `/var/lib/jellyfin/plugins/ComicInfo Extras_<version>/`
+- Docker: `/config/plugins/ComicInfo Extras_<version>/`
+
+Then restart Jellyfin and continue with step 4 above.
+
+The provider does **not** appear in the library settings and does not need to be enabled there: Jellyfin only lists local readers, online sources and storage there, while custom providers always run.
+
 ## How it hooks in
 
 The plugin is an `ICustomMetadataProvider<Book>`. It runs **after** Jellyfin's own "Comic Provider" and does not replace it. An additional `ILocalMetadataProvider` would not work, because Jellyfin stops after the first local provider that returns a result.
@@ -69,37 +106,6 @@ dotnet publish Jellyfin.Plugin.ComicInfoExtras -c Release -o out
 ```
 
 The NuGet version of `Jellyfin.Controller`/`Jellyfin.Model` must match the server version (`JellyfinVersion` in `Directory.Build.props`), and so must `targetAbi` in `build.yaml`.
-
-## Installing
-
-### From the plugin repository (recommended)
-
-1. In the dashboard: **Plugins → Repositories → +**.
-2. Add a repository (any name) with this URL:
-
-   ```
-   https://raw.githubusercontent.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/master/manifest.json
-   ```
-
-   For pre-releases as well, use `manifest-beta.json` instead.
-3. Open the **Catalog** tab, find **ComicInfo Extras** under *Metadata*, and click **Install**.
-4. Restart Jellyfin. The plugin must show the status **Active** under *Dashboard → Plugins*.
-5. Check the settings (rating system, SeriesGroup mode).
-6. For the book library: *Refresh metadata → Replace all metadata*.
-
-New releases show up in the catalog automatically.
-
-### Manual
-
-Download the ZIP from the [latest release](https://github.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/releases) and extract it into the server's plugin folder, in a subfolder named `ComicInfo Extras_<version>`:
-
-- Windows (installer/service): `C:\ProgramData\Jellyfin\Server\plugins\ComicInfo Extras_<version>\`
-- Linux package: `/var/lib/jellyfin/plugins/ComicInfo Extras_<version>/`
-- Docker: `/config/plugins/ComicInfo Extras_<version>/`
-
-Then restart Jellyfin and continue with step 4 above.
-
-The provider does **not** appear in the library settings and does not need to be enabled there: Jellyfin only lists local readers, online sources and storage there, while custom providers always run.
 
 ## Versioning and releases
 
