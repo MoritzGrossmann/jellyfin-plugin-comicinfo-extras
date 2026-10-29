@@ -30,6 +30,14 @@
                         <div class="fieldDescription checkboxFieldDescription">&lt;AgeRating&gt; is set as the age rating and therefore takes effect in parental controls.</div>
                     </div>
 
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ImportCommunityRating" type="checkbox" is="emby-checkbox" />
+                            <span>Import community rating</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">&lt;CommunityRating&gt; (0 to 5) is doubled to Jellyfin's 0 to 10 scale.</div>
+                    </div>
+
                     <div class="selectContainer">
                         <label class="selectLabel" for="RatingSystem">Rating system</label>
                         <select is="emby-select" id="RatingSystem" class="emby-select-withcolor emby-select">
@@ -82,6 +90,7 @@
                     ApiClient.getPluginConfiguration(ComicInfoExtrasConfig.pluginUniqueId).then(function (config) {
                         document.querySelector('#ImportTags').checked = config.ImportTags;
                         document.querySelector('#ImportAgeRating').checked = config.ImportAgeRating;
+                        document.querySelector('#ImportCommunityRating').checked = config.ImportCommunityRating;
                         document.querySelector('#RatingSystem').value = config.RatingSystem;
                         document.querySelector('#CustomRatingMappings').value = config.CustomRatingMappings || '';
                         document.querySelector('#SeriesGroupMode').value = config.SeriesGroupMode;
@@ -96,6 +105,7 @@
                     ApiClient.getPluginConfiguration(ComicInfoExtrasConfig.pluginUniqueId).then(function (config) {
                         config.ImportTags = document.querySelector('#ImportTags').checked;
                         config.ImportAgeRating = document.querySelector('#ImportAgeRating').checked;
+                        config.ImportCommunityRating = document.querySelector('#ImportCommunityRating').checked;
                         config.RatingSystem = document.querySelector('#RatingSystem').value;
                         config.CustomRatingMappings = document.querySelector('#CustomRatingMappings').value;
                         config.SeriesGroupMode = document.querySelector('#SeriesGroupMode').value;

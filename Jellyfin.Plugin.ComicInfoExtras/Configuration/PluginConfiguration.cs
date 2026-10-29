@@ -65,6 +65,11 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool ImportAgeRating { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether ComicInfo/CommunityRating is imported.
+    /// </summary>
+    public bool ImportCommunityRating { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the target system for AgeRating.
     /// </summary>
     public RatingSystem RatingSystem { get; set; } = RatingSystem.Fsk;

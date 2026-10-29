@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 namespace Jellyfin.Plugin.ComicInfoExtras.Providers;
 
 /// <summary>
-/// Adds Tags, AgeRating and SeriesGroup from ComicInfo.xml to books, after the built-in providers.
+/// Adds Tags, AgeRating, CommunityRating and SeriesGroup from ComicInfo.xml to books, after the built-in providers.
 /// As an <see cref="ICustomMetadataProvider{TItemType}"/> it runs alongside the built-in Comic Provider
 /// instead of replacing it.
 /// </summary>
@@ -70,6 +70,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         var changed = false;
         changed |= ApplyTags(item, extras, config);
         changed |= ApplyAgeRating(item, extras, config);
+        changed |= ApplyCommunityRating(item, extras, config);
 
         if (UsesCollection(config.SeriesGroupMode))
         {
@@ -156,6 +157,28 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         }
 
         item.OfficialRating = rating;
+        return true;
+    }
+
+    /// <summary>
+    /// Converts ComicInfo's 0 to 5 CommunityRating to Jellyfin's 0 to 10 scale.
+    /// </summary>
+    /// <param name="comicInfoRating">Value from ComicInfo, or null.</param>
+    /// <returns>The rating on Jellyfin's scale, or null.</returns>
+    internal static float? ToCommunityRating(double? comicInfoRating)
+    {
+        return comicInfoRating is null ? null : (float)(comicInfoRating.Value * 2);
+    }
+
+    private static bool ApplyCommunityRating(BaseItem item, ComicInfoFields extras, PluginConfiguration config)
+    {
+        var rating = ToCommunityRating(extras.CommunityRating);
+        if (!config.ImportCommunityRating || rating is null || item.CommunityRating == rating)
+        {
+            return false;
+        }
+
+        item.CommunityRating = rating;
         return true;
     }
 

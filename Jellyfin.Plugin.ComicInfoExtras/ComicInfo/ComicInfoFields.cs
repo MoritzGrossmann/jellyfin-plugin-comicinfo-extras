@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -11,12 +12,13 @@ namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 /// <param name="Tags">Values from ComicInfo/Tags.</param>
 /// <param name="AgeRating">Value from ComicInfo/AgeRating.</param>
 /// <param name="SeriesGroup">Value from ComicInfo/SeriesGroup.</param>
-public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRating, string? SeriesGroup)
+/// <param name="CommunityRating">Value from ComicInfo/CommunityRating, on ComicInfo's 0 to 5 scale.</param>
+public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRating, string? SeriesGroup, double? CommunityRating = null)
 {
     /// <summary>
     /// Gets a value indicating whether nothing at all was found.
     /// </summary>
-    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null;
+    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null && CommunityRating is null;
 
     /// <summary>
     /// Reads the fields from a ComicInfo document. Namespaces are ignored.
@@ -36,7 +38,21 @@ public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRati
         return new ComicInfoFields(
             SplitList(Value(root, "Tags")),
             Value(root, "AgeRating"),
-            Value(root, "SeriesGroup"));
+            Value(root, "SeriesGroup"),
+            ParseRating(Value(root, "CommunityRating")));
+    }
+
+    private static double? ParseRating(string? value)
+    {
+        // Some taggers write a decimal comma, so accept both separators.
+        if (value is null
+            || !double.TryParse(value.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var rating)
+            || double.IsNaN(rating))
+        {
+            return null;
+        }
+
+        return Math.Clamp(rating, 0, 5);
     }
 
     private static string? Value(XElement root, string name)

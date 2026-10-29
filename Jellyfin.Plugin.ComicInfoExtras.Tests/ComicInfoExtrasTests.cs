@@ -30,6 +30,26 @@ public class ComicInfoExtrasTests
         Assert.False(extras.IsEmpty);
     }
 
+    [Theory]
+    [InlineData("4.13", 4.13)]
+    [InlineData("4,13", 4.13)]
+    [InlineData("7", 5.0)]
+    [InlineData("-1", 0.0)]
+    [InlineData("kaputt", null)]
+    public void Parse_ReadsCommunityRatingOnComicInfoScale(string value, double? expected)
+    {
+        var extras = ComicInfoFields.Parse(XDocument.Parse($"<ComicInfo><CommunityRating>{value}</CommunityRating></ComicInfo>"));
+
+        Assert.Equal(expected, extras.CommunityRating);
+    }
+
+    [Fact]
+    public void ToCommunityRating_DoublesToJellyfinScale()
+    {
+        Assert.Equal(8.26f, ComicInfoExtrasProvider.ToCommunityRating(4.13)!.Value, 2);
+        Assert.Null(ComicInfoExtrasProvider.ToCommunityRating(null));
+    }
+
     [Fact]
     public void Parse_IgnoresEmptyAndMissingFields()
     {
