@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Xml.Linq;
 using Jellyfin.Data.Enums;
+using Jellyfin.Plugin.ComicInfoExtras.Characters;
 using MediaBrowser.Controller.Entities;
 using Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 using Jellyfin.Plugin.ComicInfoExtras.Configuration;
@@ -61,11 +62,11 @@ public class ComicInfoExtrasTests
         var existing = new[]
         {
             new PersonInfo { Name = "Masashi Kishimoto", Type = PersonKind.Writer },
-            new PersonInfo { Name = "Old Character", Type = PersonKind.Actor, Role = ComicInfoExtrasProvider.CharacterRole },
+            new PersonInfo { Name = "Old Character", Type = PersonKind.Actor, Role = CharacterSyncService.CharacterRole },
         };
         var extras = new ComicInfoFields([], null, null, null, ["Naruto Uzumaki", "Temari"]);
 
-        var people = ComicInfoExtrasProvider.BuildPeople(existing, extras, new PluginConfiguration());
+        var people = CharacterSyncService.BuildPeople(existing, extras, new PluginConfiguration());
 
         Assert.Equal(new[] { "Masashi Kishimoto", "Naruto Uzumaki", "Temari" }, people.Select(p => p.Name));
         Assert.All(people.Skip(1), p => Assert.Equal(PersonKind.Actor, p.Type));
