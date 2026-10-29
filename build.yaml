@@ -1,7 +1,7 @@
 ---
 name: "ComicInfo Extras"
 guid: "3f05923b-afb5-4e96-9968-692f343449e2"
-version: "1.0.0.0"
+version: "1.1.0.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
 overview: "Tags, AgeRating, CommunityRating and SeriesGroup from ComicInfo.xml for books"
@@ -15,4 +15,5 @@ owner: "moritz"
 artifacts:
 - "Jellyfin.Plugin.ComicInfoExtras.dll"
 changelog: >
-  First version.
+  Imports CommunityRating (0 to 5, doubled to Jellyfin's 0 to 10, can be turned off in the settings)
+  and Characters (added as cast). Plugin descriptions and catalog image updated.
