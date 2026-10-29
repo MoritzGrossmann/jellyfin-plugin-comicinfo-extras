@@ -1,1 +1,20 @@
-[]
+[
+    {
+        "guid": "3f05923b-afb5-4e96-9968-692f343449e2",
+        "name": "ComicInfo Extras",
+        "description": "Adds Tags, AgeRating and SeriesGroup from ComicInfo.xml to books.",
+        "overview": "Tags, AgeRating and SeriesGroup from ComicInfo.xml for books",
+        "owner": "moritz",
+        "category": "Metadata",
+        "versions": [
+            {
+                "version": "1.0.0.0",
+                "changelog": "First version.",
+                "targetAbi": "12.2.0.0",
+                "sourceUrl": "https://github.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/releases/download/v1.0.0.0/comicinfo-extras_1.0.0.0.zip",
+                "checksum": "e76d8a4c81a379b3f2e32e9b2abf8298",
+                "timestamp": "2026-10-29T07:44:35Z"
+            }
+        ]
+    }
+]
