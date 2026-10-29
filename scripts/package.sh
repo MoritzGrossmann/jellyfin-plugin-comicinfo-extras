@@ -17,11 +17,11 @@ cat > dist/pkg/meta.json <<JSON
 {
   "category": "Metadata",
   "changelog": "${CHANGELOG}",
-  "description": "Adds Tags, AgeRating and SeriesGroup from ComicInfo.xml to books.",
+  "description": "Adds Tags, AgeRating, CommunityRating and SeriesGroup from ComicInfo.xml to books.",
   "imageUrl": "https://raw.githubusercontent.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/master/images/comicinfo-extras.png",
   "guid": "3f05923b-afb5-4e96-9968-692f343449e2",
   "name": "ComicInfo Extras",
-  "overview": "Tags, AgeRating and SeriesGroup from ComicInfo.xml for books",
+  "overview": "Tags, AgeRating, CommunityRating and SeriesGroup from ComicInfo.xml for books",
   "owner": "moritz",
   "targetAbi": "${JELLYFIN_VERSION}.0",
   "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
