@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>ComicInfo Extras</title>
+</head>
+<body>
+    <div id="ComicInfoExtrasConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox,emby-textarea">
+        <div data-role="content">
+            <div class="content-primary">
+                <form id="ComicInfoExtrasConfigForm">
+                    <div class="sectionTitleContainer flex align-items-center">
+                        <h2 class="sectionTitle">ComicInfo Extras</h2>
+                    </div>
+                    <p>Ergänzt Bücher um Felder aus ComicInfo.xml, die Jellyfin selbst nicht liest. Änderungen greifen beim nächsten Aktualisieren der Metadaten.</p>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ImportTags" type="checkbox" is="emby-checkbox" />
+                            <span>Tags übernehmen</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">Kommagetrennte Werte aus &lt;Tags&gt; werden als Jellyfin-Tags ergänzt.</div>
+                    </div>
+
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ImportAgeRating" type="checkbox" is="emby-checkbox" />
+                            <span>Altersfreigabe übernehmen</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">&lt;AgeRating&gt; wird als Altersfreigabe gesetzt und wirkt damit im Jugendschutz.</div>
+                    </div>
+
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="RatingSystem">Freigabesystem</label>
+                        <select is="emby-select" id="RatingSystem" class="emby-select-withcolor emby-select">
+                            <option value="Fsk">FSK (FSK 0 / 6 / 12 / 16 / 18)</option>
+                            <option value="Us">US (G / PG / PG-13 / R / NC-17)</option>
+                            <option value="Original">Original-Wert aus ComicInfo</option>
+                        </select>
+                        <div class="fieldDescription">Zwischenstufen werden aufgerundet, z. B. „Teen“ (13+) auf FSK 16. „Original“ übernimmt den Text unverändert; der Jugendschutz kennt diese Werte meist nicht.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="CustomRatingMappings">Eigene Zuordnungen</label>
+                        <textarea is="emby-textarea" id="CustomRatingMappings" rows="5" class="emby-textarea"></textarea>
+                        <div class="fieldDescription">Eine pro Zeile, z. B. <code>Teen=FSK 12</code>. Leerer Wert rechts (<code>Teen=</code>) setzt keine Freigabe. Hat Vorrang vor der eingebauten Tabelle.</div>
+                    </div>
+
+                    <div class="selectContainer">
+                        <label class="selectLabel" for="SeriesGroupMode">SeriesGroup</label>
+                        <select is="emby-select" id="SeriesGroupMode" class="emby-select-withcolor emby-select">
+                            <option value="Off">Ignorieren</option>
+                            <option value="Tag">Als Tag</option>
+                            <option value="Collection">Als Sammlung</option>
+                            <option value="TagAndCollection">Als Tag und Sammlung</option>
+                        </select>
+                        <div class="fieldDescription">Sammlungen legt das Plugin selbst an und nimmt Bücher wieder heraus, wenn sich die Gruppe ändert. Eigene Sammlungen gleichen Namens bleiben unberührt.</div>
+                    </div>
+
+                    <div class="inputContainer">
+                        <label class="inputLabel inputLabelUnfocused" for="SeriesGroupTagPrefix">Präfix für SeriesGroup-Tags</label>
+                        <input id="SeriesGroupTagPrefix" type="text" is="emby-input" />
+                        <div class="fieldDescription">Tags mit diesem Präfix verwaltet das Plugin und ersetzt sie bei jeder Aktualisierung.</div>
+                    </div>
+
+                    <div>
+                        <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                            <span>Speichern</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var ComicInfoExtrasConfig = {
+                pluginUniqueId: '3f05923b-afb5-4e96-9968-692f343449e2'
+            };
+
+            document.querySelector('#ComicInfoExtrasConfigPage')
+                .addEventListener('pageshow', function () {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ComicInfoExtrasConfig.pluginUniqueId).then(function (config) {
+                        document.querySelector('#ImportTags').checked = config.ImportTags;
+                        document.querySelector('#ImportAgeRating').checked = config.ImportAgeRating;
+                        document.querySelector('#RatingSystem').value = config.RatingSystem;
+                        document.querySelector('#CustomRatingMappings').value = config.CustomRatingMappings || '';
+                        document.querySelector('#SeriesGroupMode').value = config.SeriesGroupMode;
+                        document.querySelector('#SeriesGroupTagPrefix').value = config.SeriesGroupTagPrefix || '';
+                        Dashboard.hideLoadingMsg();
+                    });
+                });
+
+            document.querySelector('#ComicInfoExtrasConfigForm')
+                .addEventListener('submit', function (e) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ComicInfoExtrasConfig.pluginUniqueId).then(function (config) {
+                        config.ImportTags = document.querySelector('#ImportTags').checked;
+                        config.ImportAgeRating = document.querySelector('#ImportAgeRating').checked;
+                        config.RatingSystem = document.querySelector('#RatingSystem').value;
+                        config.CustomRatingMappings = document.querySelector('#CustomRatingMappings').value;
+                        config.SeriesGroupMode = document.querySelector('#SeriesGroupMode').value;
+                        config.SeriesGroupTagPrefix = document.querySelector('#SeriesGroupTagPrefix').value;
+                        ApiClient.updatePluginConfiguration(ComicInfoExtrasConfig.pluginUniqueId, config).then(function (result) {
+                            Dashboard.processPluginConfigurationUpdateResult(result);
+                        });
+                    });
+
+                    e.preventDefault();
+                    return false;
+                });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Jellyfin.Plugin.ComicInfoExtras/Jellyfin.Plugin.ComicInfoExtras.csproj" />
+  <Project Path="Jellyfin.Plugin.ComicInfoExtras.Tests/Jellyfin.Plugin.ComicInfoExtras.Tests.csproj" />
+</Solution>
