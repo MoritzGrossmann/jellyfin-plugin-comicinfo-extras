@@ -38,6 +38,14 @@
                         <div class="fieldDescription checkboxFieldDescription">&lt;CommunityRating&gt; (0 to 5) is doubled to Jellyfin's 0 to 10 scale.</div>
                     </div>
 
+                    <div class="checkboxContainer checkboxContainer-withDescription">
+                        <label class="emby-checkbox-label">
+                            <input id="ImportCharacters" type="checkbox" is="emby-checkbox" />
+                            <span>Import characters as cast</span>
+                        </label>
+                        <div class="fieldDescription checkboxFieldDescription">&lt;Characters&gt; (comma-separated) are added as actors with the role "Character".</div>
+                    </div>
+
                     <div class="selectContainer">
                         <label class="selectLabel" for="RatingSystem">Rating system</label>
                         <select is="emby-select" id="RatingSystem" class="emby-select-withcolor emby-select">
@@ -91,6 +99,7 @@
                         document.querySelector('#ImportTags').checked = config.ImportTags;
                         document.querySelector('#ImportAgeRating').checked = config.ImportAgeRating;
                         document.querySelector('#ImportCommunityRating').checked = config.ImportCommunityRating;
+                        document.querySelector('#ImportCharacters').checked = config.ImportCharacters;
                         document.querySelector('#RatingSystem').value = config.RatingSystem;
                         document.querySelector('#CustomRatingMappings').value = config.CustomRatingMappings || '';
                         document.querySelector('#SeriesGroupMode').value = config.SeriesGroupMode;
@@ -106,6 +115,7 @@
                         config.ImportTags = document.querySelector('#ImportTags').checked;
                         config.ImportAgeRating = document.querySelector('#ImportAgeRating').checked;
                         config.ImportCommunityRating = document.querySelector('#ImportCommunityRating').checked;
+                        config.ImportCharacters = document.querySelector('#ImportCharacters').checked;
                         config.RatingSystem = document.querySelector('#RatingSystem').value;
                         config.CustomRatingMappings = document.querySelector('#CustomRatingMappings').value;
                         config.SeriesGroupMode = document.querySelector('#SeriesGroupMode').value;

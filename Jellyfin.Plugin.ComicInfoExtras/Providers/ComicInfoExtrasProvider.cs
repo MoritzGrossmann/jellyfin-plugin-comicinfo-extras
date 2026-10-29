@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.ComicInfoExtras.Collections;
 using Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 using Jellyfin.Plugin.ComicInfoExtras.Configuration;
@@ -24,8 +25,14 @@ namespace Jellyfin.Plugin.ComicInfoExtras.Providers;
 /// </summary>
 public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemChangeMonitor
 {
+    /// <summary>
+    /// Role under which characters are stored, so that they can be told apart from real actors.
+    /// </summary>
+    internal const string CharacterRole = "Character";
+
     private readonly ComicInfoLoader _loader;
     private readonly SeriesGroupCollectionService _collections;
+    private readonly ILibraryManager _libraryManager;
     private readonly ILogger<ComicInfoExtrasProvider> _logger;
 
     /// <summary>
@@ -42,6 +49,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         ILogger<ComicInfoExtrasProvider> logger)
     {
         _logger = logger;
+        _libraryManager = libraryManager;
         _loader = new ComicInfoLoader(fileSystem, logger);
         _collections = new SeriesGroupCollectionService(collectionManager, libraryManager, logger);
     }
@@ -71,6 +79,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         changed |= ApplyTags(item, extras, config);
         changed |= ApplyAgeRating(item, extras, config);
         changed |= ApplyCommunityRating(item, extras, config);
+        changed |= await ApplyCharactersAsync(item, extras, config, cancellationToken).ConfigureAwait(false);
 
         if (UsesCollection(config.SeriesGroupMode))
         {
@@ -179,6 +188,62 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         }
 
         item.CommunityRating = rating;
+        return true;
+    }
+
+    /// <summary>
+    /// Calculates the new people list. Characters are stored as actors with the role <see cref="CharacterRole"/>;
+    /// those entries are replaced every time, all other people are left alone.
+    /// </summary>
+    /// <param name="existing">Existing people.</param>
+    /// <param name="extras">Values from ComicInfo.</param>
+    /// <param name="config">Configuration.</param>
+    /// <returns>The new people list.</returns>
+    internal static List<PersonInfo> BuildPeople(IReadOnlyList<PersonInfo> existing, ComicInfoFields extras, PluginConfiguration config)
+    {
+        var result = existing.Where(p => !IsCharacter(p)).ToList();
+        if (!config.ImportCharacters || extras.Characters is null)
+        {
+            return result;
+        }
+
+        var sortOrder = result.Count;
+        foreach (var name in extras.Characters)
+        {
+            // Skip names that are already listed as an actor.
+            if (result.Any(p => p.Type == PersonKind.Actor && string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                continue;
+            }
+
+            result.Add(new PersonInfo { Name = name, Type = PersonKind.Actor, Role = CharacterRole, SortOrder = sortOrder++ });
+        }
+
+        return result;
+    }
+
+    private static bool IsCharacter(PersonInfo person) =>
+        person.Type == PersonKind.Actor && string.Equals(person.Role, CharacterRole, StringComparison.Ordinal);
+
+    private async Task<bool> ApplyCharactersAsync(Book item, ComicInfoFields extras, PluginConfiguration config, CancellationToken cancellationToken)
+    {
+        if (item.LockedFields.Contains(MetadataField.Cast))
+        {
+            return false;
+        }
+
+        var existing = _libraryManager.GetPeople(item);
+        var people = BuildPeople(existing, extras, config);
+        var unchanged = people.Count == existing.Count
+            && people.Zip(existing).All(x => x.First.Type == x.Second.Type
+                && string.Equals(x.First.Name, x.Second.Name, StringComparison.Ordinal)
+                && string.Equals(x.First.Role, x.Second.Role, StringComparison.Ordinal));
+        if (unchanged)
+        {
+            return false;
+        }
+
+        await _libraryManager.UpdatePeopleAsync(item, people, cancellationToken).ConfigureAwait(false);
         return true;
     }
 

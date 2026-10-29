@@ -2,16 +2,17 @@
 
 ![ComicInfo Extras](images/comicinfo-extras.png)
 
-Jellyfin only reads the title, series, number, summary, date, genre, publisher, language and contributors from `ComicInfo.xml`. This plugin adds four more fields to books:
+Jellyfin only reads the title, series, number, summary, date, genre, publisher, language and contributors from `ComicInfo.xml`. This plugin adds five more fields to books:
 
 | ComicInfo | Jellyfin | Behavior |
 |---|---|---|
 | `Tags` | Tags | comma-separated (`;` also accepted), added to existing tags |
 | `AgeRating` | Age rating | mapped to FSK or US levels, takes effect for parental controls |
 | `CommunityRating` | Community rating | 0 to 5 in ComicInfo, doubled to Jellyfin's 0 to 10 scale (`4.13` becomes `8.26`) |
+| `Characters` | Cast | comma-separated, added as actors with the role "Character" |
 | `SeriesGroup` | Tag and/or collection | tag with prefix (`SeriesGroup: Batman Family`) or collection of the same name |
 
-Locked fields (tags, age rating) in the metadata editor are respected.
+Locked fields (tags, age rating, cast) in the metadata editor are respected.
 
 ## Installing
 

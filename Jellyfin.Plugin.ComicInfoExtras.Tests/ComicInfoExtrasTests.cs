@@ -1,4 +1,7 @@
+using System.Linq;
 using System.Xml.Linq;
+using Jellyfin.Data.Enums;
+using MediaBrowser.Controller.Entities;
 using Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 using Jellyfin.Plugin.ComicInfoExtras.Configuration;
 using Jellyfin.Plugin.ComicInfoExtras.Providers;
@@ -41,6 +44,31 @@ public class ComicInfoExtrasTests
         var extras = ComicInfoFields.Parse(XDocument.Parse($"<ComicInfo><CommunityRating>{value}</CommunityRating></ComicInfo>"));
 
         Assert.Equal(expected, extras.CommunityRating);
+    }
+
+    [Fact]
+    public void Parse_ReadsCharacters()
+    {
+        var extras = ComicInfoFields.Parse(XDocument.Parse("<ComicInfo><Characters>Ebizou, Naruto Uzumaki, Sakura Haruno, Temari</Characters></ComicInfo>"));
+
+        Assert.Equal(new[] { "Ebizou", "Naruto Uzumaki", "Sakura Haruno", "Temari" }, extras.Characters);
+        Assert.False(extras.IsEmpty);
+    }
+
+    [Fact]
+    public void BuildPeople_ReplacesOldCharactersAndKeepsOtherPeople()
+    {
+        var existing = new[]
+        {
+            new PersonInfo { Name = "Masashi Kishimoto", Type = PersonKind.Writer },
+            new PersonInfo { Name = "Old Character", Type = PersonKind.Actor, Role = ComicInfoExtrasProvider.CharacterRole },
+        };
+        var extras = new ComicInfoFields([], null, null, null, ["Naruto Uzumaki", "Temari"]);
+
+        var people = ComicInfoExtrasProvider.BuildPeople(existing, extras, new PluginConfiguration());
+
+        Assert.Equal(new[] { "Masashi Kishimoto", "Naruto Uzumaki", "Temari" }, people.Select(p => p.Name));
+        Assert.All(people.Skip(1), p => Assert.Equal(PersonKind.Actor, p.Type));
     }
 
     [Fact]

@@ -13,12 +13,18 @@ namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 /// <param name="AgeRating">Value from ComicInfo/AgeRating.</param>
 /// <param name="SeriesGroup">Value from ComicInfo/SeriesGroup.</param>
 /// <param name="CommunityRating">Value from ComicInfo/CommunityRating, on ComicInfo's 0 to 5 scale.</param>
-public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRating, string? SeriesGroup, double? CommunityRating = null)
+/// <param name="Characters">Values from ComicInfo/Characters.</param>
+public sealed record ComicInfoFields(
+    IReadOnlyList<string> Tags,
+    string? AgeRating,
+    string? SeriesGroup,
+    double? CommunityRating = null,
+    IReadOnlyList<string>? Characters = null)
 {
     /// <summary>
     /// Gets a value indicating whether nothing at all was found.
     /// </summary>
-    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null && CommunityRating is null;
+    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null && CommunityRating is null && (Characters is null || Characters.Count == 0);
 
     /// <summary>
     /// Reads the fields from a ComicInfo document. Namespaces are ignored.
@@ -39,7 +45,8 @@ public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRati
             SplitList(Value(root, "Tags")),
             Value(root, "AgeRating"),
             Value(root, "SeriesGroup"),
-            ParseRating(Value(root, "CommunityRating")));
+            ParseRating(Value(root, "CommunityRating")),
+            SplitList(Value(root, "Characters")));
     }
 
     private static double? ParseRating(string? value)
