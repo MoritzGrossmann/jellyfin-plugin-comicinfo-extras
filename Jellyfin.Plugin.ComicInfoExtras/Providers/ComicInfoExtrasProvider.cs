@@ -18,9 +18,9 @@ using Microsoft.Extensions.Logging;
 namespace Jellyfin.Plugin.ComicInfoExtras.Providers;
 
 /// <summary>
-/// Ergänzt Bücher nach den eingebauten Providern um Tags, AgeRating und SeriesGroup aus ComicInfo.xml.
-/// Als <see cref="ICustomMetadataProvider{TItemType}"/> läuft er zusätzlich zum eingebauten Comic Provider,
-/// statt ihn zu ersetzen.
+/// Adds Tags, AgeRating and SeriesGroup from ComicInfo.xml to books, after the built-in providers.
+/// As an <see cref="ICustomMetadataProvider{TItemType}"/> it runs alongside the built-in Comic Provider
+/// instead of replacing it.
 /// </summary>
 public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemChangeMonitor
 {
@@ -57,7 +57,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         var xml = await _loader.LoadAsync(item.Path, cancellationToken).ConfigureAwait(false);
         if (xml is null)
         {
-            // Nur Sammlungen aufräumen, falls das Buch früher einer Gruppe angehörte.
+            // Only clean up collections, in case the book used to belong to a group.
             if (UsesCollection(config.SeriesGroupMode))
             {
                 await _collections.SyncAsync(item, null, cancellationToken).ConfigureAwait(false);
@@ -73,13 +73,13 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
 
         if (UsesCollection(config.SeriesGroupMode))
         {
-            // Die Sammlung wird separat gespeichert; das Buch selbst ändert sich dadurch nicht.
+            // The collection is saved separately; the book itself does not change because of this.
             await _collections.SyncAsync(item, extras.SeriesGroup, cancellationToken).ConfigureAwait(false);
         }
 
         if (changed)
         {
-            _logger.LogDebug("ComicInfo-Extras für {Path} übernommen", item.Path);
+            _logger.LogDebug("ComicInfo extras applied for {Path}", item.Path);
         }
 
         return changed ? ItemUpdateType.MetadataEdit : ItemUpdateType.None;
@@ -93,13 +93,13 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
     }
 
     /// <summary>
-    /// Berechnet die neue Tag-Liste. SeriesGroup-Tags des Plugins werden jedes Mal ersetzt,
-    /// damit eine geänderte Gruppe keinen alten Tag hinterlässt.
+    /// Calculates the new tag list. The plugin's SeriesGroup tags are replaced every time,
+    /// so that a changed group does not leave an old tag behind.
     /// </summary>
-    /// <param name="existing">Vorhandene Tags.</param>
-    /// <param name="extras">Werte aus ComicInfo.</param>
-    /// <param name="config">Konfiguration.</param>
-    /// <returns>Die neue Tag-Liste.</returns>
+    /// <param name="existing">Existing tags.</param>
+    /// <param name="extras">Values from ComicInfo.</param>
+    /// <param name="config">Configuration.</param>
+    /// <returns>The new tag list.</returns>
     internal static string[] BuildTags(IReadOnlyList<string> existing, ComicInfoFields extras, PluginConfiguration config)
     {
         var prefix = config.SeriesGroupTagPrefix ?? string.Empty;

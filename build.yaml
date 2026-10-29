@@ -4,14 +4,14 @@ guid: "3f05923b-afb5-4e96-9968-692f343449e2"
 version: "1.0.0.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
-overview: "Tags, AgeRating und SeriesGroup aus ComicInfo.xml für Bücher"
+overview: "Tags, AgeRating and SeriesGroup from ComicInfo.xml for books"
 description: >
-  Ergänzt Bücher um die ComicInfo.xml-Felder Tags, AgeRating und SeriesGroup,
-  die Jellyfin selbst nicht auswertet. AgeRating wird auf FSK- oder US-Stufen
-  abgebildet, SeriesGroup als Tag und/oder Sammlung angelegt.
+  Adds the ComicInfo.xml fields Tags, AgeRating and SeriesGroup to books,
+  which Jellyfin does not read itself. AgeRating is mapped to FSK or US levels,
+  SeriesGroup is created as a tag and/or collection.
 category: "Metadata"
 owner: "moritz"
 artifacts:
 - "Jellyfin.Plugin.ComicInfoExtras.dll"
 changelog: >
-  Erste Version.
+  First version.

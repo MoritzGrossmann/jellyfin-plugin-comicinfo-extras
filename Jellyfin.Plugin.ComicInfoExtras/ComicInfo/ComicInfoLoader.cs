@@ -12,13 +12,13 @@ using Microsoft.Extensions.Logging;
 namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 
 /// <summary>
-/// Findet und lädt ComicInfo.xml nach denselben Regeln wie Jellyfin:
-/// zuerst "&lt;Dateiname&gt;.xml" bzw. "ComicInfo.xml" daneben, sonst ComicInfo.xml im .cbz-Archiv.
+/// Finds and loads ComicInfo.xml using the same rules as Jellyfin:
+/// first "&lt;filename&gt;.xml" or "ComicInfo.xml" next to the book, otherwise ComicInfo.xml inside the .cbz archive.
 /// </summary>
 public class ComicInfoLoader
 {
     /// <summary>
-    /// Dateiname der ComicInfo-Metadaten.
+    /// File name of the ComicInfo metadata.
     /// </summary>
     public const string ComicInfoFileName = "ComicInfo.xml";
 
@@ -37,11 +37,11 @@ public class ComicInfoLoader
     }
 
     /// <summary>
-    /// Lädt das ComicInfo-Dokument für ein Buch.
+    /// Loads the ComicInfo document for a book.
     /// </summary>
-    /// <param name="path">Pfad des Buchs.</param>
+    /// <param name="path">Path of the book.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Das Dokument oder null.</returns>
+    /// <returns>The document, or null.</returns>
     public async Task<XDocument?> LoadAsync(string path, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(path))
@@ -49,16 +49,16 @@ public class ComicInfoLoader
             return null;
         }
 
-        // Gleiche Reihenfolge wie Jellyfin (ApplicationHost): externe XML vor der im Archiv.
+        // Same order as Jellyfin (ApplicationHost): external XML before the one inside the archive.
         return await LoadExternalAsync(path, cancellationToken).ConfigureAwait(false)
             ?? await LoadFromArchiveAsync(path, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Liefert den spätesten Änderungszeitpunkt aller möglichen ComicInfo-Quellen.
+    /// Returns the latest modification time of all possible ComicInfo sources.
     /// </summary>
-    /// <param name="path">Pfad des Buchs.</param>
-    /// <returns>Zeitpunkt (UTC) oder null, wenn keine Quelle existiert.</returns>
+    /// <param name="path">Path of the book.</param>
+    /// <returns>Time (UTC), or null if no source exists.</returns>
     public DateTime? GetLastModifiedUtc(string path)
     {
         if (string.IsNullOrEmpty(path))
@@ -99,7 +99,7 @@ public class ComicInfoLoader
         {
             using var zip = await ZipFile.OpenReadAsync(archive.FullName, cancellationToken).ConfigureAwait(false);
 
-            // Jellyfin sucht nur im Wurzelverzeichnis; manche Tools legen die Datei in einen Unterordner.
+            // Jellyfin only looks in the root directory; some tools put the file in a subfolder.
             var entry = zip.GetEntry(ComicInfoFileName)
                 ?? zip.Entries.FirstOrDefault(e => string.Equals(e.Name, ComicInfoFileName, StringComparison.OrdinalIgnoreCase));
 
@@ -120,7 +120,7 @@ public class ComicInfoLoader
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "ComicInfo.xml in {Path} konnte nicht gelesen werden", archive.FullName);
+            _logger.LogWarning(ex, "Could not read ComicInfo.xml in {Path}", archive.FullName);
             return null;
         }
     }
@@ -144,7 +144,7 @@ public class ComicInfoLoader
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Externe ComicInfo-Datei {Path} konnte nicht gelesen werden", file.FullName);
+            _logger.LogWarning(ex, "Could not read external ComicInfo file {Path}", file.FullName);
             return null;
         }
     }

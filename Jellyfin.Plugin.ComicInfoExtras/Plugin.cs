@@ -10,7 +10,7 @@ using MediaBrowser.Model.Serialization;
 namespace Jellyfin.Plugin.ComicInfoExtras;
 
 /// <summary>
-/// Liest Tags, AgeRating und SeriesGroup aus ComicInfo.xml und ergänzt sie an Büchern.
+/// Reads Tags, AgeRating and SeriesGroup from ComicInfo.xml and adds them to books.
 /// </summary>
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
@@ -32,7 +32,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override Guid Id => Guid.Parse("3f05923b-afb5-4e96-9968-692f343449e2");
 
     /// <inheritdoc />
-    public override string Description => "Ergänzt Bücher um Tags, AgeRating und SeriesGroup aus ComicInfo.xml.";
+    public override string Description => "Adds Tags, AgeRating and SeriesGroup from ComicInfo.xml to books.";
 
     /// <summary>
     /// Gets the current plugin instance.

@@ -12,18 +12,18 @@ using Microsoft.Extensions.Logging;
 namespace Jellyfin.Plugin.ComicInfoExtras.Collections;
 
 /// <summary>
-/// Hält Bücher in Sammlungen, die nach ComicInfo/SeriesGroup benannt sind.
-/// Vom Plugin angelegte Sammlungen tragen eine eigene Provider-ID, damit sie von
-/// handgepflegten Sammlungen gleichen Namens unterscheidbar sind.
+/// Keeps books in collections named after ComicInfo/SeriesGroup.
+/// Collections created by the plugin carry their own provider ID, so they can be told apart from
+/// manually maintained collections with the same name.
 /// </summary>
 public class SeriesGroupCollectionService
 {
     /// <summary>
-    /// Provider-ID-Schlüssel, mit dem das Plugin seine Sammlungen markiert.
+    /// Provider ID key the plugin uses to mark its collections.
     /// </summary>
     public const string ProviderKey = "ComicInfoSeriesGroup";
 
-    // Bücher werden parallel aktualisiert; ohne Sperre entstünden doppelte Sammlungen.
+    // Books are updated in parallel; without a lock, duplicate collections would be created.
     private static readonly SemaphoreSlim _lock = new(1, 1);
 
     private readonly ICollectionManager _collectionManager;
@@ -44,12 +44,12 @@ public class SeriesGroupCollectionService
     }
 
     /// <summary>
-    /// Ordnet das Buch der Sammlung seiner SeriesGroup zu und entfernt es aus anderen Plugin-Sammlungen.
+    /// Adds the book to the collection for its SeriesGroup and removes it from other plugin collections.
     /// </summary>
-    /// <param name="item">Das Buch.</param>
-    /// <param name="seriesGroup">Die SeriesGroup oder null, wenn das Buch keiner Gruppe (mehr) angehört.</param>
+    /// <param name="item">The book.</param>
+    /// <param name="seriesGroup">The SeriesGroup, or null if the book no longer belongs to any group.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>true, wenn sich etwas geändert hat.</returns>
+    /// <returns>true if something changed.</returns>
     public async Task<bool> SyncAsync(BaseItem item, string? seriesGroup, CancellationToken cancellationToken)
     {
         if (item.Id.Equals(Guid.Empty))
@@ -79,7 +79,7 @@ public class SeriesGroupCollectionService
 
                 if (target is null)
                 {
-                    _logger.LogInformation("Lege Sammlung {Name} für SeriesGroup an", seriesGroup);
+                    _logger.LogInformation("Creating collection {Name} for SeriesGroup", seriesGroup);
                     target = await _collectionManager.CreateCollectionAsync(new CollectionCreationOptions
                     {
                         Name = seriesGroup,
@@ -96,7 +96,7 @@ public class SeriesGroupCollectionService
                 }
             }
 
-            // Bei geänderter oder entfernter SeriesGroup aus alten Plugin-Sammlungen herausnehmen.
+            // If the SeriesGroup changed or was removed, take the book out of old plugin collections.
             foreach (var old in managed.Where(b => b.Id != target?.Id && b.ContainsLinkedChildByItemId(item.Id)))
             {
                 await _collectionManager.RemoveFromCollectionAsync(old.Id, [item.Id]).ConfigureAwait(false);
@@ -107,8 +107,8 @@ public class SeriesGroupCollectionService
         }
         catch (ArgumentException ex)
         {
-            // z. B. wenn das Buch beim ersten Scan noch nicht in der Datenbank steht.
-            _logger.LogDebug(ex, "Sammlung für {Item} konnte nicht aktualisiert werden", item.Path);
+            // E.g. when the book is not yet in the database during the first scan.
+            _logger.LogDebug(ex, "Could not update collection for {Item}", item.Path);
             return false;
         }
         finally

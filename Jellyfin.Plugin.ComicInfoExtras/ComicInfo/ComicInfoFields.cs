@@ -6,23 +6,23 @@ using System.Xml.Linq;
 namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 
 /// <summary>
-/// Die Felder aus ComicInfo.xml, die Jellyfin selbst nicht auswertet.
+/// The fields from ComicInfo.xml that Jellyfin itself does not read.
 /// </summary>
-/// <param name="Tags">Werte aus ComicInfo/Tags.</param>
-/// <param name="AgeRating">Wert aus ComicInfo/AgeRating.</param>
-/// <param name="SeriesGroup">Wert aus ComicInfo/SeriesGroup.</param>
+/// <param name="Tags">Values from ComicInfo/Tags.</param>
+/// <param name="AgeRating">Value from ComicInfo/AgeRating.</param>
+/// <param name="SeriesGroup">Value from ComicInfo/SeriesGroup.</param>
 public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRating, string? SeriesGroup)
 {
     /// <summary>
-    /// Gets a value indicating whether überhaupt etwas gefunden wurde.
+    /// Gets a value indicating whether nothing at all was found.
     /// </summary>
     public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null;
 
     /// <summary>
-    /// Liest die Felder aus einem ComicInfo-Dokument. Namensräume werden ignoriert.
+    /// Reads the fields from a ComicInfo document. Namespaces are ignored.
     /// </summary>
-    /// <param name="xml">Das ComicInfo-Dokument.</param>
-    /// <returns>Die gefundenen Felder.</returns>
+    /// <param name="xml">The ComicInfo document.</param>
+    /// <returns>The fields that were found.</returns>
     public static ComicInfoFields Parse(XDocument xml)
     {
         ArgumentNullException.ThrowIfNull(xml);
@@ -56,7 +56,7 @@ public sealed record ComicInfoFields(IReadOnlyList<string> Tags, string? AgeRati
             return [];
         }
 
-        // ComicInfo trennt Listen mit Kommas, manche Tagger nutzen Semikolons.
+        // ComicInfo separates lists with commas, some taggers use semicolons.
         return value
             .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Distinct(StringComparer.OrdinalIgnoreCase)

@@ -3,48 +3,48 @@ using MediaBrowser.Model.Plugins;
 namespace Jellyfin.Plugin.ComicInfoExtras.Configuration;
 
 /// <summary>
-/// Zielsystem für AgeRating.
+/// Target system for AgeRating.
 /// </summary>
 public enum RatingSystem
 {
     /// <summary>
-    /// Deutsche FSK-Stufen (FSK 0/6/12/16/18).
+    /// German FSK levels (FSK 0/6/12/16/18).
     /// </summary>
     Fsk,
 
     /// <summary>
-    /// US-Stufen (G, PG, PG-13, R, NC-17).
+    /// US levels (G, PG, PG-13, R, NC-17).
     /// </summary>
     Us,
 
     /// <summary>
-    /// Wert unverändert übernehmen. Jellyfins Jugendschutz kennt die meisten ComicInfo-Werte nicht.
+    /// Pass the value through unchanged. Jellyfin's parental controls do not know most ComicInfo values.
     /// </summary>
     Original
 }
 
 /// <summary>
-/// Wohin SeriesGroup geschrieben wird.
+/// Where SeriesGroup is written to.
 /// </summary>
 public enum SeriesGroupMode
 {
     /// <summary>
-    /// SeriesGroup ignorieren.
+    /// Ignore SeriesGroup.
     /// </summary>
     Off,
 
     /// <summary>
-    /// Als Tag mit Präfix.
+    /// As a tag with prefix.
     /// </summary>
     Tag,
 
     /// <summary>
-    /// Als Sammlung (BoxSet).
+    /// As a collection (BoxSet).
     /// </summary>
     Collection,
 
     /// <summary>
-    /// Tag und Sammlung.
+    /// Tag and collection.
     /// </summary>
     TagAndCollection
 }
@@ -55,33 +55,33 @@ public enum SeriesGroupMode
 public class PluginConfiguration : BasePluginConfiguration
 {
     /// <summary>
-    /// Gets or sets a value indicating whether ComicInfo/Tags importiert wird.
+    /// Gets or sets a value indicating whether ComicInfo/Tags is imported.
     /// </summary>
     public bool ImportTags { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets a value indicating whether ComicInfo/AgeRating importiert wird.
+    /// Gets or sets a value indicating whether ComicInfo/AgeRating is imported.
     /// </summary>
     public bool ImportAgeRating { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets das Zielsystem für AgeRating.
+    /// Gets or sets the target system for AgeRating.
     /// </summary>
     public RatingSystem RatingSystem { get; set; } = RatingSystem.Fsk;
 
     /// <summary>
-    /// Gets or sets eigene Zuordnungen, eine pro Zeile im Format "ComicInfo-Wert=Jellyfin-Rating".
-    /// Sie haben Vorrang vor der eingebauten Tabelle.
+    /// Gets or sets custom mappings, one per line in the format "ComicInfo value=Jellyfin rating".
+    /// They take precedence over the built-in table.
     /// </summary>
     public string CustomRatingMappings { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets, wohin SeriesGroup geschrieben wird.
+    /// Gets or sets where SeriesGroup is written to.
     /// </summary>
     public SeriesGroupMode SeriesGroupMode { get; set; } = SeriesGroupMode.Tag;
 
     /// <summary>
-    /// Gets or sets das Präfix für SeriesGroup-Tags.
+    /// Gets or sets the prefix for SeriesGroup tags.
     /// </summary>
     public string SeriesGroupTagPrefix { get; set; } = "SeriesGroup: ";
 }

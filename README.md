@@ -1,30 +1,30 @@
-# ComicInfo Extras – Jellyfin-Plugin
+# ComicInfo Extras – Jellyfin Plugin
 
-Jellyfin liest aus `ComicInfo.xml` nur Titel, Serie, Nummer, Zusammenfassung, Datum, Genre, Verlag, Sprache und Mitwirkende. Dieses Plugin ergänzt Bücher um drei weitere Felder:
+Jellyfin only reads the title, series, number, summary, date, genre, publisher, language and contributors from `ComicInfo.xml`. This plugin adds three more fields to books:
 
-| ComicInfo | Jellyfin | Verhalten |
+| ComicInfo | Jellyfin | Behavior |
 |---|---|---|
-| `Tags` | Tags | kommagetrennt (auch `;`), wird zu vorhandenen Tags hinzugefügt |
-| `AgeRating` | Altersfreigabe | auf FSK- oder US-Stufen abgebildet, wirkt im Jugendschutz |
-| `SeriesGroup` | Tag und/oder Sammlung | Tag mit Präfix (`SeriesGroup: Batman Family`) bzw. Sammlung gleichen Namens |
+| `Tags` | Tags | comma-separated (`;` also accepted), added to existing tags |
+| `AgeRating` | Age rating | mapped to FSK or US levels, takes effect for parental controls |
+| `SeriesGroup` | Tag and/or collection | tag with prefix (`SeriesGroup: Batman Family`) or collection of the same name |
 
-Gesperrte Felder (Tags, Altersfreigabe) im Metadaten-Editor werden respektiert.
+Locked fields (tags, age rating) in the metadata editor are respected.
 
-## Wie es eingehängt ist
+## How it hooks in
 
-Das Plugin ist ein `ICustomMetadataProvider<Book>`. Es läuft **nach** Jellyfins eigenem „Comic Provider“ und ersetzt ihn nicht. Ein zusätzlicher `ILocalMetadataProvider` würde nicht funktionieren, weil Jellyfin nach dem ersten lokalen Provider mit Treffer abbricht.
+The plugin is an `ICustomMetadataProvider<Book>`. It runs **after** Jellyfin's own "Comic Provider" and does not replace it. An additional `ILocalMetadataProvider` would not work, because Jellyfin stops after the first local provider that returns a result.
 
-Gesucht wird wie bei Jellyfin selbst:
+It looks for the file the same way Jellyfin does:
 
-1. `<Dateiname>.xml` neben dem Buch,
-2. sonst `ComicInfo.xml` im selben Ordner,
-3. sonst `ComicInfo.xml` im `.cbz`-Archiv (das Plugin sucht auch in Unterordnern des Archivs, Jellyfin selbst nur im Wurzelverzeichnis).
+1. `<filename>.xml` next to the book,
+2. otherwise `ComicInfo.xml` in the same folder,
+3. otherwise `ComicInfo.xml` inside the `.cbz` archive (the plugin also searches subfolders of the archive, while Jellyfin only checks the root).
 
-## AgeRating-Zuordnung
+## AgeRating mapping
 
-Zwischenstufen werden aufgerundet, damit der Jugendschutz eher zu streng als zu lasch greift.
+Intermediate levels are rounded up, so parental controls err on the side of being too strict rather than too lax.
 
-| ComicInfo | Mindestalter | FSK | US |
+| ComicInfo | Minimum age | FSK | US |
 |---|---|---|---|
 | Early Childhood, Everyone, G | 0 | FSK 0 | G |
 | Kids to Adults | 6 | FSK 6 | PG |
@@ -33,55 +33,98 @@ Zwischenstufen werden aufgerundet, damit der Jugendschutz eher zu streng als zu 
 | M, MA15+ | 15 | FSK 16 | R |
 | Mature 17+ | 17 | FSK 18 | R |
 | R18+, X18+, Adults Only 18+ | 18 | FSK 18 | NC-17 |
-| Unknown, Rating Pending | – | nichts setzen | nichts setzen |
+| Unknown, Rating Pending | – | leave unset | leave unset |
 
-Unbekannte Werte (z. B. bereits `FSK 12`) werden unverändert übernommen. Eigene Zuordnungen in den Plugin-Einstellungen haben Vorrang, z. B. `Teen=FSK 12`.
+Unknown values (e.g. `FSK 12`, which is already in the target format) are passed through unchanged. Custom mappings in the plugin settings take precedence, e.g. `Teen=FSK 12`.
 
-## Bauen
+## Building
 
-Voraussetzung: Docker. Kein lokales .NET nötig.
+Requirement: Docker. No local .NET installation needed.
 
 Windows (PowerShell, Docker Desktop):
 
 ```powershell
-.\build.ps1                            # gegen Jellyfin 12.2.0
-.\build.ps1 -JellyfinVersion 12.4.0    # gegen eine andere Server-Version
+.\build.ps1                            # against Jellyfin 12.2.0
+.\build.ps1 -JellyfinVersion 12.4.0    # against a different server version
 ```
 
 Linux/macOS:
 
 ```sh
-./build.sh                          # gegen Jellyfin 12.2.0
-JELLYFIN_VERSION=12.4.0 ./build.sh  # gegen eine andere Server-Version
+./build.sh                          # against Jellyfin 12.2.0
+JELLYFIN_VERSION=12.4.0 ./build.sh  # against a different server version
 ```
 
-**Die Version muss zum Server passen oder älter sein.** Jellyfin lädt kein Plugin, dessen `targetAbi` höher ist als die eigene Version; es erscheint dann unter *Dashboard → Plugins* als nicht unterstützt.
+**The build version must match the server or be older.** Jellyfin does not load a plugin whose `targetAbi` is higher than the server's version; it then shows up as unsupported under *Dashboard → Plugins*.
 
-Ergebnis: `dist/comicinfo-extras_1.0.0.0.zip` mit DLL und `meta.json`. Das Skript führt vorher die Unit-Tests aus.
+Result: `dist/comicinfo-extras_<version>.zip` containing the DLL and `meta.json`. The version is read from `build.yaml`. The script runs the unit tests first.
 
-Mit lokalem .NET-10-SDK geht auch:
+With a local .NET 10 SDK you can also run:
 
 ```sh
 dotnet test
 dotnet publish Jellyfin.Plugin.ComicInfoExtras -c Release -o out
 ```
 
-Die NuGet-Version von `Jellyfin.Controller`/`Jellyfin.Model` muss zur Server-Version passen (`JellyfinVersion` in `Directory.Build.props`), ebenso `targetAbi` in `build.yaml`.
+The NuGet version of `Jellyfin.Controller`/`Jellyfin.Model` must match the server version (`JellyfinVersion` in `Directory.Build.props`), and so must `targetAbi` in `build.yaml`.
 
-## Installieren
+## Installing
 
-1. ZIP in den Plugin-Ordner des Servers entpacken, in einen Unterordner `ComicInfo Extras_1.0.0.0`:
-   - Windows (Installer/Dienst): `C:\ProgramData\Jellyfin\Server\plugins\ComicInfo Extras_1.0.0.0\`
-   - Linux-Paket: `/var/lib/jellyfin/plugins/ComicInfo Extras_1.0.0.0/`
-   - Docker: `/config/plugins/ComicInfo Extras_1.0.0.0/`
-2. Jellyfin neu starten. Unter *Dashboard → Plugins* muss es mit Status **Aktiv** erscheinen.
-3. Einstellungen prüfen (Freigabesystem, SeriesGroup-Modus).
-4. Bücher-Bibliothek: *Metadaten aktualisieren → Alle Metadaten ersetzen*.
+### From the plugin repository (recommended)
 
-Der Provider taucht in den Bibliothekseinstellungen **nicht** auf und muss dort nicht aktiviert werden: Jellyfin listet dort nur lokale Leser, Online-Quellen und Speicher, Custom-Provider laufen immer.
+1. In the dashboard: **Plugins → Repositories → +**.
+2. Add a repository (any name) with this URL:
 
-## Grenzen
+   ```
+   https://raw.githubusercontent.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/master/manifest.json
+   ```
 
-- Entfernte Einträge aus `<Tags>` bleiben als Jellyfin-Tag stehen, bis „Alle Metadaten ersetzen“ ausgeführt wird. SeriesGroup-Tags (mit Präfix) werden dagegen bei jeder Aktualisierung ersetzt.
-- Wie bei Jellyfin selbst werden nur `.cbz`-Archive geöffnet. Für `.cbr`/`.cb7` funktioniert nur die externe XML-Datei.
-- Sammlungen erkennt das Plugin an der Provider-ID `ComicInfoSeriesGroup`. Leer gewordene Sammlungen bleiben bestehen und können von Hand gelöscht werden.
+   For pre-releases as well, use `manifest-beta.json` instead.
+3. Open the **Catalog** tab, find **ComicInfo Extras** under *Metadata*, and click **Install**.
+4. Restart Jellyfin. The plugin must show the status **Active** under *Dashboard → Plugins*.
+5. Check the settings (rating system, SeriesGroup mode).
+6. For the book library: *Refresh metadata → Replace all metadata*.
+
+New releases show up in the catalog automatically.
+
+### Manual
+
+Download the ZIP from the [latest release](https://github.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/releases) and extract it into the server's plugin folder, in a subfolder named `ComicInfo Extras_<version>`:
+
+- Windows (installer/service): `C:\ProgramData\Jellyfin\Server\plugins\ComicInfo Extras_<version>\`
+- Linux package: `/var/lib/jellyfin/plugins/ComicInfo Extras_<version>/`
+- Docker: `/config/plugins/ComicInfo Extras_<version>/`
+
+Then restart Jellyfin and continue with step 4 above.
+
+The provider does **not** appear in the library settings and does not need to be enabled there: Jellyfin only lists local readers, online sources and storage there, while custom providers always run.
+
+## Versioning and releases
+
+The version has four parts, as Jellyfin requires: `MAJOR.MINOR.PATCH.REVISION`.
+
+| Part | Meaning |
+|---|---|
+| `MAJOR.MINOR.PATCH` | [Semantic Versioning](https://semver.org): breaking change / new feature / bug fix |
+| `REVISION` | `0` = stable release, `1` and up = beta toward the next stable version |
+
+`build.yaml` is the single source of truth: the assembly version, `meta.json` and the repository manifest all derive from its `version` and `changelog`.
+
+Channels:
+
+- **Stable** (`manifest.json`): a normal GitHub Release with revision `.0`, e.g. `v1.2.0.0`.
+- **Beta** (`manifest-beta.json`): a GitHub *pre-release* with a non-zero revision, e.g. `v1.2.0.1`. The beta manifest also contains all stable releases.
+
+To publish a release:
+
+1. In `build.yaml`, set `version` (e.g. `"1.2.0.0"`) and describe the changes in `changelog`. Commit and push to `master`.
+2. On GitHub, create a release with the tag `v<version>` (e.g. `v1.2.0.0`). Tick *Set as a pre-release* for betas.
+3. The `build` workflow then tests and packages the plugin, attaches `comicinfo-extras_<version>.zip` to the release and commits the updated manifest(s) to `master`.
+
+The workflow fails early if the tag does not match `build.yaml` or if the revision does not fit the channel (stable must end in `.0`, pre-releases must not). When you raise `JellyfinVersion` for a new server version, update `targetAbi` in `build.yaml`, `JELLYFIN_VERSION` in `scripts/package.sh` and `.github/workflows/build.yaml` as well.
+
+## Limitations
+
+- Removed entries from `<Tags>` stay as Jellyfin tags until "Replace all metadata" is run. SeriesGroup tags (with prefix), on the other hand, are replaced on every update.
+- As with Jellyfin itself, only `.cbz` archives are opened. For `.cbr`/`.cb7` only the external XML file works.
+- The plugin recognizes its collections by the provider ID `ComicInfoSeriesGroup`. Collections that become empty are kept and can be deleted manually.

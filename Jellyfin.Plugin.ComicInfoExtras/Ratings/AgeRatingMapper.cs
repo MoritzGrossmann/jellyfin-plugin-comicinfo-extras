@@ -5,12 +5,12 @@ using Jellyfin.Plugin.ComicInfoExtras.Configuration;
 namespace Jellyfin.Plugin.ComicInfoExtras.Ratings;
 
 /// <summary>
-/// Übersetzt ComicInfo-AgeRating-Werte in Ratings, die Jellyfins Jugendschutz kennt.
-/// Zwischenstufen werden aufgerundet (z. B. "Everyone 10+" auf FSK 12), damit der Jugendschutz nicht zu lasch greift.
+/// Translates ComicInfo AgeRating values into ratings that Jellyfin's parental controls understand.
+/// Intermediate levels are rounded up (e.g. "Everyone 10+" to FSK 12), so parental controls do not end up too lax.
 /// </summary>
 public static class AgeRatingMapper
 {
-    // Mindestalter je ComicInfo-Wert (Schema v2.1). null = kein Rating.
+    // Minimum age per ComicInfo value (schema v2.1). null = no rating.
     private static readonly Dictionary<string, int?> _minimumAge = new(StringComparer.OrdinalIgnoreCase)
     {
         ["Unknown"] = null,
@@ -34,10 +34,10 @@ public static class AgeRatingMapper
     /// <summary>
     /// Bildet einen ComicInfo-Wert auf ein Jellyfin-Rating ab.
     /// </summary>
-    /// <param name="value">Wert aus ComicInfo/AgeRating.</param>
-    /// <param name="system">Zielsystem.</param>
-    /// <param name="customMappings">Eigene Zuordnungen ("Wert=Rating" je Zeile), haben Vorrang.</param>
-    /// <returns>Das Rating oder null, wenn nichts gesetzt werden soll.</returns>
+    /// <param name="value">Value from ComicInfo/AgeRating.</param>
+    /// <param name="system">Target system.</param>
+    /// <param name="customMappings">Custom mappings ("value=rating" per line), which take precedence.</param>
+    /// <returns>The rating, or null if nothing should be set.</returns>
     public static string? Map(string? value, RatingSystem system, string? customMappings = null)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -60,7 +60,7 @@ public static class AgeRatingMapper
 
         if (!_minimumAge.TryGetValue(value, out var minimumAge))
         {
-            // Unbekannter Wert: unverändert übernehmen, Jellyfin versucht ihn selbst aufzulösen.
+            // Unknown value: pass it through unchanged, Jellyfin tries to resolve it itself.
             return value;
         }
 
@@ -73,11 +73,11 @@ public static class AgeRatingMapper
     }
 
     /// <summary>
-    /// Liest eigene Zuordnungen. Leere Zeilen und Zeilen mit # werden ignoriert.
-    /// Ein leerer Wert rechts ("Teen=") bedeutet: kein Rating setzen.
+    /// Reads custom mappings. Empty lines and lines starting with # are ignored.
+    /// An empty value on the right ("Teen=") means: do not set a rating.
     /// </summary>
-    /// <param name="text">Zuordnungen, eine pro Zeile.</param>
-    /// <returns>Wörterbuch ComicInfo-Wert zu Rating.</returns>
+    /// <param name="text">Mappings, one per line.</param>
+    /// <returns>Dictionary from ComicInfo value to rating.</returns>
     public static Dictionary<string, string> ParseCustomMappings(string? text)
     {
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>ComicInfo Extras</title>
@@ -12,60 +12,60 @@
                     <div class="sectionTitleContainer flex align-items-center">
                         <h2 class="sectionTitle">ComicInfo Extras</h2>
                     </div>
-                    <p>Ergänzt Bücher um Felder aus ComicInfo.xml, die Jellyfin selbst nicht liest. Änderungen greifen beim nächsten Aktualisieren der Metadaten.</p>
+                    <p>Adds fields from ComicInfo.xml to books that Jellyfin does not read itself. Changes take effect the next time metadata is refreshed.</p>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="ImportTags" type="checkbox" is="emby-checkbox" />
-                            <span>Tags übernehmen</span>
+                            <span>Import tags</span>
                         </label>
-                        <div class="fieldDescription checkboxFieldDescription">Kommagetrennte Werte aus &lt;Tags&gt; werden als Jellyfin-Tags ergänzt.</div>
+                        <div class="fieldDescription checkboxFieldDescription">Comma-separated values from &lt;Tags&gt; are added as Jellyfin tags.</div>
                     </div>
 
                     <div class="checkboxContainer checkboxContainer-withDescription">
                         <label class="emby-checkbox-label">
                             <input id="ImportAgeRating" type="checkbox" is="emby-checkbox" />
-                            <span>Altersfreigabe übernehmen</span>
+                            <span>Import age rating</span>
                         </label>
-                        <div class="fieldDescription checkboxFieldDescription">&lt;AgeRating&gt; wird als Altersfreigabe gesetzt und wirkt damit im Jugendschutz.</div>
+                        <div class="fieldDescription checkboxFieldDescription">&lt;AgeRating&gt; is set as the age rating and therefore takes effect in parental controls.</div>
                     </div>
 
                     <div class="selectContainer">
-                        <label class="selectLabel" for="RatingSystem">Freigabesystem</label>
+                        <label class="selectLabel" for="RatingSystem">Rating system</label>
                         <select is="emby-select" id="RatingSystem" class="emby-select-withcolor emby-select">
                             <option value="Fsk">FSK (FSK 0 / 6 / 12 / 16 / 18)</option>
                             <option value="Us">US (G / PG / PG-13 / R / NC-17)</option>
-                            <option value="Original">Original-Wert aus ComicInfo</option>
+                            <option value="Original">Original value from ComicInfo</option>
                         </select>
-                        <div class="fieldDescription">Zwischenstufen werden aufgerundet, z. B. „Teen“ (13+) auf FSK 16. „Original“ übernimmt den Text unverändert; der Jugendschutz kennt diese Werte meist nicht.</div>
+                        <div class="fieldDescription">Intermediate levels are rounded up, e.g. "Teen" (13+) becomes FSK 16. "Original" passes the text through unchanged; parental controls usually do not know these values.</div>
                     </div>
 
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="CustomRatingMappings">Eigene Zuordnungen</label>
+                        <label class="inputLabel inputLabelUnfocused" for="CustomRatingMappings">Custom mappings</label>
                         <textarea is="emby-textarea" id="CustomRatingMappings" rows="5" class="emby-textarea"></textarea>
-                        <div class="fieldDescription">Eine pro Zeile, z. B. <code>Teen=FSK 12</code>. Leerer Wert rechts (<code>Teen=</code>) setzt keine Freigabe. Hat Vorrang vor der eingebauten Tabelle.</div>
+                        <div class="fieldDescription">One per line, e.g. <code>Teen=FSK 12</code>. An empty value on the right (<code>Teen=</code>) sets no rating. Takes precedence over the built-in table.</div>
                     </div>
 
                     <div class="selectContainer">
                         <label class="selectLabel" for="SeriesGroupMode">SeriesGroup</label>
                         <select is="emby-select" id="SeriesGroupMode" class="emby-select-withcolor emby-select">
-                            <option value="Off">Ignorieren</option>
-                            <option value="Tag">Als Tag</option>
-                            <option value="Collection">Als Sammlung</option>
-                            <option value="TagAndCollection">Als Tag und Sammlung</option>
+                            <option value="Off">Ignore</option>
+                            <option value="Tag">As tag</option>
+                            <option value="Collection">As collection</option>
+                            <option value="TagAndCollection">As tag and collection</option>
                         </select>
-                        <div class="fieldDescription">Sammlungen legt das Plugin selbst an und nimmt Bücher wieder heraus, wenn sich die Gruppe ändert. Eigene Sammlungen gleichen Namens bleiben unberührt.</div>
+                        <div class="fieldDescription">The plugin creates collections itself and removes books from them when the group changes. Your own collections with the same name are left untouched.</div>
                     </div>
 
                     <div class="inputContainer">
-                        <label class="inputLabel inputLabelUnfocused" for="SeriesGroupTagPrefix">Präfix für SeriesGroup-Tags</label>
+                        <label class="inputLabel inputLabelUnfocused" for="SeriesGroupTagPrefix">Prefix for SeriesGroup tags</label>
                         <input id="SeriesGroupTagPrefix" type="text" is="emby-input" />
-                        <div class="fieldDescription">Tags mit diesem Präfix verwaltet das Plugin und ersetzt sie bei jeder Aktualisierung.</div>
+                        <div class="fieldDescription">The plugin manages tags with this prefix and replaces them on every refresh.</div>
                     </div>
 
                     <div>
                         <button is="emby-button" type="submit" class="raised button-submit block emby-button">
-                            <span>Speichern</span>
+                            <span>Save</span>
                         </button>
                     </div>
                 </form>
