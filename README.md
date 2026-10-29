@@ -1,5 +1,7 @@
 # ComicInfo Extras – Jellyfin Plugin
 
+![ComicInfo Extras](images/comicinfo-extras.png)
+
 Jellyfin only reads the title, series, number, summary, date, genre, publisher, language and contributors from `ComicInfo.xml`. This plugin adds three more fields to books:
 
 | ComicInfo | Jellyfin | Behavior |
