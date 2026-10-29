@@ -9,6 +9,14 @@
         "imageUrl": "https://raw.githubusercontent.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/master/images/comicinfo-extras.png",
         "versions": [
             {
+                "version": "1.1.1.0",
+                "changelog": "Fixes the Characters import: Jellyfin overwrote the cast after the plugin had set it, so no characters appeared. They are now applied right after a book is saved.",
+                "targetAbi": "12.2.0.0",
+                "sourceUrl": "https://github.com/MoritzGrossmann/jellyfin-plugin-comicinfo-extras/releases/download/v1.1.1.0/comicinfo-extras_1.1.1.0.zip",
+                "checksum": "fbed1e73f563efbfc6d90b0957a9ecb8",
+                "timestamp": "2026-10-29T11:41:19Z"
+            },
+            {
                 "version": "1.1.0.0",
                 "changelog": "Imports CommunityRating (0 to 5, doubled to Jellyfin's 0 to 10, can be turned off in the settings) and Characters (added as cast). Plugin descriptions and catalog image updated.",
                 "targetAbi": "12.2.0.0",
