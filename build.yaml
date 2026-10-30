@@ -1,19 +1,20 @@
 ---
 name: "ComicInfo Extras"
 guid: "3f05923b-afb5-4e96-9968-692f343449e2"
-version: "1.1.1.0"
+version: "1.2.0.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
-overview: "Tags, AgeRating, CommunityRating, Characters and SeriesGroup from ComicInfo.xml for books"
+overview: "Tags, AgeRating, CommunityRating, Characters, SeriesGroup and sort title from ComicInfo.xml for books"
 description: >
   Adds the ComicInfo.xml fields Tags, AgeRating, CommunityRating, Characters and SeriesGroup to books,
   which Jellyfin does not read itself. AgeRating is mapped to FSK or US levels,
   CommunityRating is doubled from ComicInfo's 0 to 5 scale to Jellyfin's 0 to 10,
-  Characters are added as cast, SeriesGroup is created as a tag and/or collection.
+  Characters are added as cast, Series is used as the sort title,
+  SeriesGroup is created as a tag and/or collection.
 category: "Metadata"
 owner: "moritz"
 artifacts:
 - "Jellyfin.Plugin.ComicInfoExtras.dll"
 changelog: >
-  Fixes the Characters import: Jellyfin overwrote the cast after the plugin had set it, so no characters
-  appeared. They are now applied right after a book is saved.
+  Series from ComicInfo.xml is now set as the sort title ("Sort by title"), so books sort by it.
+  Can be turned off in the settings.
