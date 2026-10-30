@@ -187,7 +187,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
     {
         if (!config.ImportSortTitle
             || extras.Series is null
-            || item.LockedFields.Contains(MetadataField.SortName)
+            || item.LockedFields.Contains(MetadataField.Name)
             || string.Equals(extras.Series, item.ForcedSortName, StringComparison.Ordinal))
         {
             return false;
