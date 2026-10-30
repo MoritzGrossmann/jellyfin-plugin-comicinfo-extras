@@ -71,6 +71,7 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         changed |= ApplyTags(item, extras, config);
         changed |= ApplyAgeRating(item, extras, config);
         changed |= ApplyCommunityRating(item, extras, config);
+        changed |= ApplySortTitle(item, extras, config);
 
         if (UsesCollection(config.SeriesGroupMode))
         {
@@ -179,6 +180,20 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         }
 
         item.CommunityRating = rating;
+        return true;
+    }
+
+    private static bool ApplySortTitle(BaseItem item, ComicInfoFields extras, PluginConfiguration config)
+    {
+        if (!config.ImportSortTitle
+            || extras.Series is null
+            || item.LockedFields.Contains(MetadataField.SortName)
+            || string.Equals(extras.Series, item.ForcedSortName, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        item.ForcedSortName = extras.Series;
         return true;
     }
 

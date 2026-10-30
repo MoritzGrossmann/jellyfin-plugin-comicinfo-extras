@@ -9,6 +9,7 @@ Jellyfin only reads the title, series, number, summary, date, genre, publisher, 
 | `Tags` | Tags | comma-separated (`;` also accepted), added to existing tags |
 | `AgeRating` | Age rating | mapped to FSK or US levels, takes effect for parental controls |
 | `CommunityRating` | Community rating | 0 to 5 in ComicInfo, doubled to Jellyfin's 0 to 10 scale (`4.13` becomes `8.26`) |
+| `Series` | Sort title | used as-is, e.g. `The Cummoner 001` |
 | `Characters` | Cast | comma-separated, added as actors with the role "Character" |
 | `SeriesGroup` | Tag and/or collection | tag with prefix (`SeriesGroup: Batman Family`) or collection of the same name |
 

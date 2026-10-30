@@ -75,6 +75,11 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool ImportCharacters { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether ComicInfo/Series is used as the sort title.
+    /// </summary>
+    public bool ImportSortTitle { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the target system for AgeRating.
     /// </summary>
     public RatingSystem RatingSystem { get; set; } = RatingSystem.Fsk;
