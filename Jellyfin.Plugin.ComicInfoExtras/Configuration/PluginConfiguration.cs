@@ -80,6 +80,11 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool ImportSortTitle { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets a value indicating whether the web client shows the page count on a book's details page.
+    /// </summary>
+    public bool ShowPageCount { get; set; } = true;
+
+    /// <summary>
     /// Gets or sets the target system for AgeRating.
     /// </summary>
     public RatingSystem RatingSystem { get; set; } = RatingSystem.Fsk;

@@ -15,6 +15,20 @@ Jellyfin only reads the title, series, number, summary, date, genre, publisher, 
 
 Locked fields (tags, age rating, cast) in the metadata editor are respected.
 
+## Page count on the details page
+
+A book's details page shows its page count in the info line at the top (e.g. `2004 · 186 Seiten · FSK 12`), where movies show their runtime. Jellyfin's web client hides this for books.
+
+The page count comes from, in this order:
+
+1. the images inside a `.cbz` archive (`ComicInfo.xml` and other files are not counted),
+2. `<PageCount>` in `ComicInfo.xml`,
+3. the count Jellyfin stores when it scans `.cbr`, `.cb7`, `.cbt` and `.pdf` files.
+
+EPUBs have no page count and show nothing.
+
+How it works: the plugin adds one `<script>` tag to the web client's `index.html` as the server sends it (the files on disk are not changed). The script calls `GET /ComicInfoExtras/Items/{itemId}/PageCount`, which only answers for books the signed-in user can see. It only works in the web client and apps that use it (e.g. Jellyfin Media Player, the Android app); other apps such as Swiftfin or Findroid do not show it. Turn it off with *Show page count* in the plugin settings, then reload the web client.
+
 ## Installing
 
 Requires Jellyfin **12.2** or newer (the plugin targets ABI `12.2.0.0`, .NET 10).

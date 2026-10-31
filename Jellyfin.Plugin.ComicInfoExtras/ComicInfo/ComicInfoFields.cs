@@ -15,18 +15,20 @@ namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 /// <param name="CommunityRating">Value from ComicInfo/CommunityRating, on ComicInfo's 0 to 5 scale.</param>
 /// <param name="Characters">Values from ComicInfo/Characters.</param>
 /// <param name="Series">Value from ComicInfo/Series.</param>
+/// <param name="PageCount">Value from ComicInfo/PageCount, if positive.</param>
 public sealed record ComicInfoFields(
     IReadOnlyList<string> Tags,
     string? AgeRating,
     string? SeriesGroup,
     double? CommunityRating = null,
     IReadOnlyList<string>? Characters = null,
-    string? Series = null)
+    string? Series = null,
+    int? PageCount = null)
 {
     /// <summary>
     /// Gets a value indicating whether nothing at all was found.
     /// </summary>
-    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null && CommunityRating is null && Series is null && (Characters is null || Characters.Count == 0);
+    public bool IsEmpty => Tags.Count == 0 && AgeRating is null && SeriesGroup is null && CommunityRating is null && Series is null && PageCount is null && (Characters is null || Characters.Count == 0);
 
     /// <summary>
     /// Reads the fields from a ComicInfo document. Namespaces are ignored.
@@ -49,7 +51,13 @@ public sealed record ComicInfoFields(
             Value(root, "SeriesGroup"),
             ParseRating(Value(root, "CommunityRating")),
             SplitList(Value(root, "Characters")),
-            Value(root, "Series"));
+            Value(root, "Series"),
+            ParsePageCount(Value(root, "PageCount")));
+    }
+
+    private static int? ParsePageCount(string? value)
+    {
+        return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var count) && count > 0 ? count : null;
     }
 
     private static double? ParseRating(string? value)
