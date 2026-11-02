@@ -127,4 +127,28 @@ public class ComicInfoExtrasTests
 
         Assert.Equal(new[] { "SeriesGroup: Alt" }, tags);
     }
+
+    [Theory]
+    [InlineData("Naruto", "1", "Naruto 001")]
+    [InlineData("Naruto", "12", "Naruto 012")]
+    [InlineData("Naruto", "1,5", "Naruto 001.5")]
+    [InlineData("Naruto", "0", "Naruto 000")]
+    [InlineData("Naruto", "Annual", "Naruto")]
+    [InlineData("Naruto", null, "Naruto")]
+    [InlineData("Naruto 001", "1", "Naruto 001")]
+    public void BuildSortTitle_AppendsPaddedNumber(string series, string? number, string expected)
+    {
+        var xml = $"<ComicInfo><Series>{series}</Series>{(number is null ? string.Empty : $"<Number>{number}</Number>")}</ComicInfo>";
+        var extras = ComicInfoFields.Parse(System.Xml.Linq.XDocument.Parse(xml));
+
+        Assert.Equal(expected, ComicInfoExtrasProvider.BuildSortTitle(extras));
+    }
+
+    [Fact]
+    public void BuildSortTitle_IsNullWithoutSeries()
+    {
+        var extras = ComicInfoFields.Parse(System.Xml.Linq.XDocument.Parse("<ComicInfo><Number>3</Number></ComicInfo>"));
+
+        Assert.Null(ComicInfoExtrasProvider.BuildSortTitle(extras));
+    }
 }

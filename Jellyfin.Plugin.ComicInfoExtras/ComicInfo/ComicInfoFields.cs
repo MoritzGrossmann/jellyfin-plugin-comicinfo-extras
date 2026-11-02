@@ -16,6 +16,7 @@ namespace Jellyfin.Plugin.ComicInfoExtras.ComicInfo;
 /// <param name="Characters">Values from ComicInfo/Characters.</param>
 /// <param name="Series">Value from ComicInfo/Series.</param>
 /// <param name="PageCount">Value from ComicInfo/PageCount, if positive.</param>
+/// <param name="Number">Value from ComicInfo/Number, if it is a non-negative number.</param>
 public sealed record ComicInfoFields(
     IReadOnlyList<string> Tags,
     string? AgeRating,
@@ -23,7 +24,8 @@ public sealed record ComicInfoFields(
     double? CommunityRating = null,
     IReadOnlyList<string>? Characters = null,
     string? Series = null,
-    int? PageCount = null)
+    int? PageCount = null,
+    decimal? Number = null)
 {
     /// <summary>
     /// Gets a value indicating whether nothing at all was found.
@@ -52,7 +54,20 @@ public sealed record ComicInfoFields(
             ParseRating(Value(root, "CommunityRating")),
             SplitList(Value(root, "Characters")),
             Value(root, "Series"),
-            ParsePageCount(Value(root, "PageCount")));
+            ParsePageCount(Value(root, "PageCount")),
+            ParseNumber(Value(root, "Number")));
+    }
+
+    private static decimal? ParseNumber(string? value)
+    {
+        // Numbers like "1.5" are valid, but "12a" or "Annual" are not sortable, so they are ignored.
+        if (value is null
+            || !decimal.TryParse(value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var number))
+        {
+            return null;
+        }
+
+        return number;
     }
 
     private static int? ParsePageCount(string? value)

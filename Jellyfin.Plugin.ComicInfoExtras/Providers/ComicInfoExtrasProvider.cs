@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -183,17 +184,51 @@ public class ComicInfoExtrasProvider : ICustomMetadataProvider<Book>, IHasItemCh
         return true;
     }
 
+    /// <summary>
+    /// Builds the sort title: the series, followed by the zero-padded issue number when one is given,
+    /// e.g. "Naruto 001" or "Naruto 001.5".
+    /// </summary>
+    /// <param name="extras">The fields read from ComicInfo.xml.</param>
+    /// <returns>The sort title, or null if there is no series.</returns>
+    public static string? BuildSortTitle(ComicInfoFields extras)
+    {
+        ArgumentNullException.ThrowIfNull(extras);
+
+        if (extras.Series is null)
+        {
+            return null;
+        }
+
+        if (extras.Number is not { } number)
+        {
+            return extras.Series;
+        }
+
+        var whole = decimal.Truncate(number);
+        var text = whole.ToString("000", CultureInfo.InvariantCulture);
+        if (number != whole)
+        {
+            text += (number - whole).ToString("0.#############", CultureInfo.InvariantCulture)[1..];
+        }
+
+        // The series may already carry the number, as in "Naruto 001".
+        return extras.Series.EndsWith(" " + text, StringComparison.Ordinal)
+            ? extras.Series
+            : extras.Series + " " + text;
+    }
+
     private static bool ApplySortTitle(BaseItem item, ComicInfoFields extras, PluginConfiguration config)
     {
+        var sortTitle = BuildSortTitle(extras);
         if (!config.ImportSortTitle
-            || extras.Series is null
+            || sortTitle is null
             || item.LockedFields.Contains(MetadataField.Name)
-            || string.Equals(extras.Series, item.ForcedSortName, StringComparison.Ordinal))
+            || string.Equals(sortTitle, item.ForcedSortName, StringComparison.Ordinal))
         {
             return false;
         }
 
-        item.ForcedSortName = extras.Series;
+        item.ForcedSortName = sortTitle;
         return true;
     }
 
