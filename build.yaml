@@ -1,7 +1,7 @@
 ---
 name: "ComicInfo Extras"
 guid: "3f05923b-afb5-4e96-9968-692f343449e2"
-version: "1.3.0.0"
+version: "1.4.0.0"
 targetAbi: "12.2.0.0"
 framework: "net10.0"
 overview: "Tags, AgeRating, CommunityRating, Characters, SeriesGroup, sort title and page count from ComicInfo.xml for books"
@@ -9,7 +9,7 @@ description: >
   Adds the ComicInfo.xml fields Tags, AgeRating, CommunityRating, Characters and SeriesGroup to books,
   which Jellyfin does not read itself. AgeRating is mapped to FSK or US levels,
   CommunityRating is doubled from ComicInfo's 0 to 5 scale to Jellyfin's 0 to 10,
-  Characters are added as cast, Series is used as the sort title,
+  Characters are added as cast, Series and Number are used as the sort title,
   SeriesGroup is created as a tag and/or collection.
   The page count is shown on a book's details page, where movies show their runtime.
 category: "Metadata"
@@ -17,5 +17,5 @@ owner: "moritz"
 artifacts:
 - "Jellyfin.Plugin.ComicInfoExtras.dll"
 changelog: >
-  A book's details page now shows its page count at the top (e.g. "186 Seiten"), where movies show their runtime.
-  Can be turned off in the settings.
+  The sort title ("Sort by title") now also contains the issue number from ComicInfo.xml, zero-padded
+  (e.g. "Naruto 001"), so volumes of a series sort in order. Non-numeric numbers are ignored.
